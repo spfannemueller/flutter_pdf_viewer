@@ -20,28 +20,35 @@ public class FlutterPdfViewerPlugin implements MethodCallHandler {
             registrar.messenger(), "flutter_pdf_viewer"
         );
         channel.setMethodCallHandler(new FlutterPdfViewerPlugin(registrar));
+
+        registrar
+            .platformViewRegistry()
+            .registerViewFactory(
+                "flutter_pdf_viewer/pdfview",
+                new PdfViewFactory(registrar.messenger())
+            );
     }
 
     @Override
-    public void onMethodCall(MethodCall call, Result result) {
+    public void onMethodCall(MethodCall methodCall, Result result) {
         Intent intent = new Intent(this.registrar.context(), PdfActivity.class);
 
-        intent.putExtra("password", (String) call.argument("password"));
-        intent.putExtra("nightMode", (Boolean) call.argument("nightMode"));
-        intent.putExtra("xorDecryptKey", (String) call.argument("xorDecryptKey"));
-        intent.putExtra("swipeHorizontal", (Boolean) call.argument("swipeHorizontal"));
-        intent.putExtra("method", call.method);
+        intent.putExtra("password", (String) methodCall.argument("password"));
+        intent.putExtra("nightMode", (Boolean) methodCall.argument("nightMode"));
+        intent.putExtra("xorDecryptKey", (String) methodCall.argument("xorDecryptKey"));
+        intent.putExtra("swipeHorizontal", (Boolean) methodCall.argument("swipeHorizontal"));
+        intent.putExtra("method", methodCall.method);
 
-        switch (call.method) {
+        switch (methodCall.method) {
             case "fromFile":
-                intent.putExtra(call.method, (String) call.argument("filePath"));
+                intent.putExtra(methodCall.method, (String) methodCall.argument("filePath"));
                 break;
             case "fromBytes":
-                intent.putExtra(call.method, (Integer) call.argument("pdfBytesSize"));
+                intent.putExtra(methodCall.method, (Integer) methodCall.argument("pdfBytesSize"));
                 break;
             case "fromAsset":
                 intent.putExtra(
-                    call.method, this.registrar.lookupKeyForAsset((String) call.argument("assetPath"))
+                    methodCall.method, this.registrar.lookupKeyForAsset((String) methodCall.argument("assetPath"))
                 );
                 break;
             default: {

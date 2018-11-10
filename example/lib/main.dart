@@ -14,15 +14,19 @@ class MyApp extends StatelessWidget {
           title: const Text('Plugin example app'),
         ),
         body: new Center(
-          child: ListView(
-            children: [
-              LoadFromAssetButton(),
-              LoadUrlAsFile(),
-              LoadUrlAsBytes(),
-              LoadHorizontalPdf()
-            ],
-          ),
-        ),
+            child: AndroidView(
+          viewType: 'flutter_pdf_viewer/pdfview',
+          onPlatformViewCreated: (_) => print("hello! $_"),
+        )
+//          child: ListView(
+//            children: [
+//              LoadFromAssetButton(),
+//              LoadUrlAsFile(),
+//              LoadUrlAsBytes(),
+//              LoadHorizontalPdf()
+//            ],
+//          ),
+            ),
       ),
     );
   }
