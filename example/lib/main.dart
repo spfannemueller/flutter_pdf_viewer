@@ -1,7 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_pdf_viewer/flutter_pdf_viewer.dart';
+import 'package:flutter_pdf_viewer/main.dart';
 
 void main() => runApp(new MyApp());
 
@@ -13,97 +11,47 @@ class MyApp extends StatelessWidget {
         appBar: new AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: new Center(
-            child: AndroidView(
-          viewType: 'flutter_pdf_viewer/pdfview',
-          onPlatformViewCreated: (_) => print("hello! $_"),
-        )
-//          child: ListView(
-//            children: [
-//              LoadFromAssetButton(),
-//              LoadUrlAsFile(),
-//              LoadUrlAsBytes(),
-//              LoadHorizontalPdf()
-//            ],
-//          ),
-            ),
+        body: HomePage(),
       ),
     );
   }
 }
 
-class LoadFromAssetButton extends StatelessWidget {
+class HomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return RaisedButton(
-      onPressed: () {
-        FlutterPdfViewer.loadAsset('assets/test.pdf');
-      },
-      child: Text('open from assets'),
-    );
-  }
+  _HomePageState createState() => _HomePageState();
 }
 
-class LoadUrlAsFile extends StatelessWidget {
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      onPressed: () async {
-        Scaffold.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Downloading...'),
-            duration: Duration(days: 24),
+    double pdfHeight = MediaQuery.of(context).size.height / 4;
+
+    return Column(
+      children: <Widget>[
+        Container(
+          height: pdfHeight,
+          child: PDFView.fromAsset(
+            'assets/test.pdf',
+            onLoad: () => print("loaded pdf 1!"),
           ),
-        );
-
-        String filePath = await FlutterPdfViewer.downloadAsFile(
-          'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf',
-        );
-
-        print("filePath: '$filePath'");
-
-        Scaffold.of(context).hideCurrentSnackBar();
-
-        FlutterPdfViewer.loadFilePath(filePath);
-      },
-      child: Text('download + load as file (cached)'),
-    );
-  }
-}
-
-class LoadUrlAsBytes extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return RaisedButton(
-      onPressed: () async {
-        Scaffold.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Downloading...'),
-            duration: Duration(days: 24),
+        ),
+        Container(
+          height: pdfHeight,
+          child: PDFView.fromAsset(
+            'assets/lorem-ipsum.pdf',
+            swipeHorizontal: true,
+            onLoad: () => print("loaded pdf 2!"),
           ),
-        );
-
-        Uint8List bytes = await FlutterPdfViewer.downloadAsBytes(
-          'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf',
-        );
-
-        Scaffold.of(context).hideCurrentSnackBar();
-
-        FlutterPdfViewer.loadBytes(bytes);
-      },
-      child: Text('download + load as bytes (not cached)'),
-    );
-  }
-}
-
-class LoadHorizontalPdf extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return RaisedButton(
-      onPressed: () {
-        FlutterPdfViewer.loadAsset('assets/test.pdf', swipeHorizontal: true);
-      },
-      child: Text('open horizontal pdf'),
+        ),
+        Container(
+          height: pdfHeight,
+          child: PDFView.fromUrl(
+              'http://www.usingcsp.com/cspbook.pdf',
+              onDownload: (f) => print("downloaded file! $f"),
+              onLoad: () => print("loaded pdf 3!")),
+        ),
+      ],
     );
   }
 }
