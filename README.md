@@ -28,6 +28,18 @@ To use this plugin, follow the [installation instructions](https://pub.dartlang.
 
 [![pub package](https://img.shields.io/pub/v/flutter_pdf_viewer.svg)](https://pub.dartlang.org/packages/flutter_pdf_viewer)
 
+To install the inline branch, you can do the following:
+
+
+```yaml
+dependencies:
+  flutter_pdf_viewer:
+    git:
+      url: git://github.com/pycampers/flutter_pdf_viewer/
+      ref: inline
+```
+
+
 License: MIT
 
 ## Example
