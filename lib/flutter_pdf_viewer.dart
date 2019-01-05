@@ -16,6 +16,8 @@ class FlutterPdfViewer {
   static Future<void> loadFilePath(
     String filePath, {
     String password,
+    String title,
+    bool share,
     bool nightMode,
     String xorDecryptKey,
     bool swipeHorizontal,
@@ -25,6 +27,8 @@ class FlutterPdfViewer {
       {
         'filePath': 'file://' + filePath,
         'password': password,
+        'title' : title,
+        'share' : share,
         'nightMode': nightMode,
         'xorDecryptKey': xorDecryptKey,
         'swipeHorizontal': swipeHorizontal,
@@ -36,6 +40,8 @@ class FlutterPdfViewer {
     Uint8List pdfBytes, {
     String password,
     bool nightMode,
+    String title,
+    bool share,
     String xorDecryptKey,
     bool swipeHorizontal,
   }) async {
@@ -55,6 +61,8 @@ class FlutterPdfViewer {
       {
         'pdfBytesSize': pdfBytesSize,
         'password': password,
+        'title' : title,
+        'share' : share,
         'nightMode': nightMode,
         'xorDecryptKey': xorDecryptKey,
         'swipeHorizontal': swipeHorizontal,

@@ -4,12 +4,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+import com.github.barteksc.pdfviewer.util.Constants;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -19,15 +25,49 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
-public class PdfActivity extends Activity implements OnLoadCompleteListener {
+public class PdfActivity extends AppCompatActivity implements OnLoadCompleteListener {
     FrameLayout progressOverlay;
+    Uri uri;
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    // Menu icons are inflated just as they were with actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int i = item.getItemId();
+        if (i == R.id.share) {// do whatever
+            sharePDF(uri);
+        }
+            return super.onOptionsItemSelected(item);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.pdf_viewer_layout);
+
+        //Set min Zoom Level
+        Constants.Pinch.MINIMUM_ZOOM = 0.5f;
+
         final PDFView pdfView = findViewById(R.id.pdfView);
+        pdfView.enableRenderDuringScale(false);
+        pdfView.setMinZoom(0.9f);
+        pdfView.toRealScale(0.9f);
+
+        //pdfView.spacing(10);
         progressOverlay = findViewById(R.id.progress_overlay);
         progressOverlay.bringToFront();
 
@@ -36,6 +76,24 @@ public class PdfActivity extends Activity implements OnLoadCompleteListener {
         Intent intent = getIntent();
         final Bundle opts = intent.getExtras();
         assert opts != null;
+
+
+
+        if(!opts.getString("title", "").equals("") || opts.getBoolean("share", false)){
+            // Find the toolbar view inside the activity layout
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            toolbar.setTitle(opts.getString("title", ""));
+
+
+
+            // Sets the Toolbar to act as the ActionBar for this Activity window.
+            // Make sure the toolbar exists in the activity and is not null
+            setSupportActionBar(toolbar);
+            if( getSupportActionBar() != null){
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                //getSupportActionBar().setIcon(R.drawable.);
+            }
+        }
 
         final DefaultScrollHandle scrollHandle = new DefaultScrollHandle(this);
         final OnLoadCompleteListener onLoadCompleteListener = this;
@@ -54,6 +112,8 @@ public class PdfActivity extends Activity implements OnLoadCompleteListener {
                             configurator = pdfView.fromUri(
                                 Uri.parse(opts.getString(method))
                             );
+
+                            uri =  Uri.parse(opts.getString(method));
                             break;
                         case "fromBytes":
                             try {
@@ -67,6 +127,7 @@ public class PdfActivity extends Activity implements OnLoadCompleteListener {
                             break;
                         case "fromAsset":
                             configurator = pdfView.fromAsset(opts.getString(method));
+
                             break;
                         default:
                             return;
@@ -110,15 +171,32 @@ public class PdfActivity extends Activity implements OnLoadCompleteListener {
 
                 configurator
                     .password(opts.getString("password"))
-                    .scrollHandle(scrollHandle)
                     .nightMode(opts.getBoolean("nightMode"))
                     .swipeHorizontal(opts.getBoolean("swipeHorizontal"))
                     .onLoad(onLoadCompleteListener)
+                    .spacing(15)
                     .load();
+
+
             }
         }
         new PrimeThread().start();
     }
+
+
+    private void sharePDF(Uri uri){
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.setType("application/pdf");
+        startActivity(Intent.createChooser(shareIntent, "Medikationsplan versenden"));
+    }
+
+
 
     private byte[] readBytesFromSocket(int pdfBytesSize) throws IOException {
         System.out.println(pdfBytesSize);

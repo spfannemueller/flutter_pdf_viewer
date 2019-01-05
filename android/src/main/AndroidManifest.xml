@@ -3,7 +3,8 @@
 
     <application>
         <activity
+            android:configChanges="orientation|screenSize"
             android:name=".PdfActivity"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 </manifest>
